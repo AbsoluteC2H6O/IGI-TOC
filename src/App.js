@@ -6,7 +6,7 @@ class IgText extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      charsLeft: 80,
+      charsLeft: this.props.charsLeft2,
       charsLimit: false,
       postText: ''
     };
@@ -17,7 +17,7 @@ class IgText extends Component {
     const text = e.target.value;
     this.setState({
       charsLeft: text.length,
-      charsLimit: text.length > 80 ? true : false,
+      charsLimit: text.length > this.props.charsLeft2 ? true : false,
       postText: text,
     });
   }
@@ -46,7 +46,7 @@ class IgText extends Component {
                 <div className="col-xs-10 col-md-10 text-center">
                 </div>
                 <div className="col-xs-2 col-md-2 text-right">
-                  <p>{this.state.charsLeft}/80</p>
+    <p>{this.state.charsLeft}/{this.props.charsLeft2}</p>
                 </div>
               </div>
           </FormGroup>
@@ -82,7 +82,7 @@ class IgPanel extends Component {
             <Panel.Body>
               <Tabs defaultActiveKey={1} id="Planteamientos-tab">
               {this.props.tabs.map((i, index) => (<Tab eventKey={index} title={i}>
-                <IgText/></Tab>))}
+                <IgText charsLeft2={this.props.charsLeft1}/></Tab>))}
               </Tabs>
               <div className="row text-center">
                 <FormGroup>
@@ -118,10 +118,14 @@ class FormToc extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     //this.handleIGcircuntance = this.handleIGcircuntanc.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleInput = this.handleInput.bind(this);
+    this.handleInputSeg = this.handleInputSeg.bind(this);
+    this.handleInputCic = this.handleInputCic.bind(this); 
+    this.handleChangeSeg = this.handleChangeSeg.bind(this);
     this.state = {
       value: 0,
-			show: false,
+      show: false,
+      circunstanceChar: 150,
+      PanelChar: 80,
       panelIzq: {
         title: 'Planteamientos',
         tabs: [
@@ -173,6 +177,10 @@ class FormToc extends Component {
 
     event.preventDefault();
   }
+  handleChangeSeg(index2){
+    this.setState({currentSeg: index2});
+
+  }
   handleChange(event){
     //this.segmentClient.currentSeg.setState(currents);
    // this.setState({currentSeg: event.target.currents});
@@ -189,7 +197,7 @@ class FormToc extends Component {
     */
      
   
-  handleInput(event){
+  handleInputSeg(event){
    // let index1 = e.target.selectedIndex;
    // console.log(e.target.options[index1].text); // obtiene el texto de la opción seleccionada
    /*
@@ -208,6 +216,13 @@ class FormToc extends Component {
  
    
   // this.setState({optionSeg.push(value):value});
+  }
+  handleInputCic(event){
+    const tabs =this.state.segmentClient.circunstanceSeg;
+    const inputE = this.inputEl.value;
+    tabs.push(inputE);
+    console.log(`Actualizado: ${tabs}`);
+    this.setState({circunstanceSeg:tabs});
   }
 /*
   handleIGcircuntance(event,index1){
@@ -263,7 +278,7 @@ class FormToc extends Component {
                     <Button
                       bsStyle="primary" 
                       bsSize="large"
-                      onClick={this.handleInput}
+                      onClick={this.handleInputSeg}
                     >
                       Agregar
                     </Button>
@@ -282,15 +297,16 @@ class FormToc extends Component {
                   onClick={this.handleShow} 
                   bsStyle="primary" 
                   bsSize="large"
-                  inputRef={currents => this.inputEl=currents }
+                  defaultValue="seleccionar segmento de cliente"
+                 // inputRef={currents => this.inputEl=currents }
                   //onChange={this.handleChange}
               >
                 
-                <option value="seleccionar segmento" disabled>Seleccionar Segmento de Cliente</option>
+                <option value="seleccionar segmento de cliente" disabled>Seleccionar Segmento de Cliente</option>
 								{this.state.segmentClient.optionSeg.map((i,index)=> (
                 
                  
-								<option  onChange={this.handleChange.bind(this,index)} key={index} value={i} currents={index}>	
+								<option onChange={this.handleChangeSeg.bind(this,index)} key={index} value={i} currents={index}>	
                 {i} 
 								</option>)) }
                 
@@ -329,13 +345,13 @@ class FormToc extends Component {
                       type="text"
                       bsStyle="primary" 
                       bsSize="large"
-                      //inputRef={el => this.inputEl=el}
+                      inputRef={el => this.inputEl=el}
                     />
                     <InputGroup.Button>
                       <Button
                         bsStyle="primary" 
                         bsSize="large"
-                        onClick={this.handleInput}
+                        onClick={this.handleInputCic}
                       >
                         Agregar
                       </Button>
@@ -347,8 +363,8 @@ class FormToc extends Component {
                     <form>
                       <FormGroup controlId="formControlsSelect">
                         <div className="row">
-                          <ControlLabel>
-                              Circunstancia
+                          <ControlLabel className="col-xs-12 col-md-12 text-center">
+                <h4> {this.state.segmentClient.circunstanceSeg[this.state.segmentClient.currentCic]}</h4>
                           </ControlLabel>
                         </div>
                         <div className="row">
@@ -361,6 +377,7 @@ class FormToc extends Component {
                             onClick={this.handleShow} 
                             bsStyle="primary" 
                             bsSize="large"
+                            defaultValue="circunstancia 1"
                             //onChange={this.handleChange(currentC)}
                             >
                                
@@ -375,7 +392,7 @@ class FormToc extends Component {
                             </FormControl>
                           </div>
                         </div>
-                        <IgText/>
+                        <IgText charsLeft2={this.state.circunstanceChar}/>
                        
                         <div className="RangeSlider row">
                           <div className="col-xs-6 col-md-6 text-left">
@@ -385,21 +402,16 @@ class FormToc extends Component {
                             <h4>Rara vez</h4>
                           </div>
                         </div>
-                        <input id="slider2" type="range">
-                          {
-                            /* si agregos estos atributos deberia posiconar valores maxims, no compila
-                            <input id="slider2" type="range" min="0" max="5" value="1" step="1"> 
-                            */
-                          }
+                        <input id="slider2" type="range" min="0" max="20">
                         </input>
                       </FormGroup>
                     </form>
                     <div className="row-fluid">
                       <div className="col-xs-12 col-md-6 text center">
-                      <IgPanel title={this.state.panelIzq.title} tabs={this.state.panelIzq.tabs}/>
+                      <IgPanel charsLeft1={this.state.PanelChar} title={this.state.panelIzq.title} tabs={this.state.panelIzq.tabs}/>
                       </div>
                       <div className="col-xs-12 col-md-6 text-center">
-                      <IgPanel title={this.state.panelDer.title} tabs={this.state.panelDer.tabs}/>
+                      <IgPanel charsLeft1={this.state.PanelChar} title={this.state.panelDer.title} tabs={this.state.panelDer.tabs}/>
                       </div>
                     </div>
                   </Modal.Body>
